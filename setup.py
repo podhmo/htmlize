@@ -17,6 +17,7 @@ install_requires=[
     'setuptools',
     'markdown',
     'docutils',
+    'pygments'
     ]
 
 docs_extras = [
@@ -41,7 +42,7 @@ class PyTest(TestCommand):
 
 
 setup(name='htmlize',
-      version='0.1',
+      version='0.2',
       description='tiny utility command, generate html from any formats(e.g. .md, .rst)',
       long_description=README + '\n\n' +  CHANGES,
       classifiers=[

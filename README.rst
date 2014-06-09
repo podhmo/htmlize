@@ -56,3 +56,11 @@ when -b option is added, dump generated html to teporary file, and open via web 
 .. code:: bash
 
     htmlize -b sample/hello.md
+
+memo(and thunks)
+----------------------------------------
+
+css is borrowed from these repositories.
+
+- https://github.com/jasonm23/markdown-css-themes
+- https://gist.github.com/andyferra/2554919

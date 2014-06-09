@@ -11,9 +11,11 @@ options:
 
 import sys
 import re
+import os.path
 import argparse
 import logging
 logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 from markdown import markdown
 from docutils.examples import html_parts as restructured_text
@@ -54,6 +56,7 @@ template = """\
 <html>
 <head>
 <meta charset="{encoding}"/>
+{theme}
 </head>
 <body>
 {body}
@@ -62,17 +65,41 @@ template = """\
 """
 
 
+def get_resource_directory_path():
+    return os.path.join(os.path.abspath(os.path.dirname(__file__)), "resources",)
+
+
+def emit_theme(body, theme, encoding="UTF-8"):
+    if theme is None:
+        return(template.format(encoding=encoding, body=body, theme=""))
+    else:
+        dirpath = get_resource_directory_path()
+        path = os.path.join(dirpath, theme) + ".css"
+        if not os.path.exists(path):
+            logger.warn("%s is not found use default theme", path)
+            path = os.path.join(dirpath, "default.css")
+        with open(path) as rf:
+            css = rf.read()
+        theme = """<style type="text/css">{}</style>""".format(css)
+        return(template.format(encoding=encoding, body=body, theme=theme))
+
+
 @c.as_converter(markdown_rx)
-def on_markdown(filename):
+def on_markdown(filename, theme=None):
     with open(filename) as rf:
-        return(template.format(encoding="UTF-8", body=markdown(rf.read())))
+        body = markdown(rf.read())
+        return emit_theme(body, theme, encoding="UTF-8")
 
 
 @c.as_converter(rest_rx)
-def on_rest(filename):
+def on_rest(filename, theme=None):
     with open(filename) as rf:
         parts = restructured_text(rf.read())
-        return(template.format(encoding=parts["encoding"], body=parts["html_body"]))
+        return emit_theme(
+            parts["html_body"],
+            theme,
+            encoding=parts["encoding"]
+        )
 
 
 def detect(filename, converter=c):
@@ -80,22 +107,32 @@ def detect(filename, converter=c):
     return converter(name)
 
 
+def list_theme():
+    root = get_resource_directory_path()
+    for filename in os.listdir(root):
+        print(filename.replace(".css", "", 1))
+
+
 def main(sys_args=sys.argv):
     parser = argparse.ArgumentParser()
     parser.add_argument("program")
     parser.add_argument("file")
     parser.add_argument("-b", "--browse", action="store_true", default=False)
+    parser.add_argument("-l", "--list", action="store_true", default=False)
+    parser.add_argument("-t", "--theme", default=None)
     args = parser.parse_args(sys_args)
-
+    if args.list:
+        return list_theme()
+    
     if not args.browse:
-        print(detect(args.file)(args.file))
+        print(detect(args.file)(args.file, args.theme))
     else:
         import tempfile
         import webbrowser
 
         _, tmpname = tempfile.mkstemp(suffix=".html")
         with open(tmpname, "w") as wf:
-            wf.write(detect(args.file)(args.file))
+            wf.write(detect(args.file)(args.file, theme=args.theme))
         webbrowser.open_new_tab("file://{}".format(tmpname))
 
 
