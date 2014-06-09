@@ -42,7 +42,7 @@ class PyTest(TestCommand):
 
 
 setup(name='htmlize',
-      version='0.2',
+      version='0.2.1',
       description='tiny utility command, generate html from any formats(e.g. .md, .rst)',
       long_description=README + '\n\n' +  CHANGES,
       classifiers=[

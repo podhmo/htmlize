@@ -14,6 +14,7 @@ import re
 import os.path
 import argparse
 import logging
+from .compat import text_
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
@@ -51,7 +52,7 @@ markdown_rx = re.compile(r"\.(?:md|markdown)$")
 rest_rx = re.compile(r"\.(rst|rest)")
 
 
-template = """\
+template = u"""\
 <!doctype html>
 <html>
 <head>
@@ -79,7 +80,7 @@ def emit_theme(body, theme, encoding="UTF-8"):
             logger.warn("%s is not found use default theme", path)
             path = os.path.join(dirpath, "default.css")
         with open(path) as rf:
-            css = rf.read()
+            css = text_(rf.read())
         theme = """<style type="text/css">{}</style>""".format(css)
         return(template.format(encoding=encoding, body=body, theme=theme))
 
@@ -87,14 +88,14 @@ def emit_theme(body, theme, encoding="UTF-8"):
 @c.as_converter(markdown_rx)
 def on_markdown(filename, theme=None):
     with open(filename) as rf:
-        body = markdown(rf.read())
+        body = markdown(text_(rf.read()))
         return emit_theme(body, theme, encoding="UTF-8")
 
 
 @c.as_converter(rest_rx)
 def on_rest(filename, theme=None):
     with open(filename) as rf:
-        parts = restructured_text(rf.read())
+        parts = restructured_text(text_(rf.read()))
         return emit_theme(
             parts["html_body"],
             theme,
