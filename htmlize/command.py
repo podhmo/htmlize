@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 from markdown import markdown
 from docutils.examples import html_parts as restructured_text
 
+
 class NotSupport(Exception):
     pass
 
