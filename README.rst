@@ -55,7 +55,7 @@ when -b option is added, dump generated html to teporary file, and open via web 
 
 .. code:: bash
 
-    htmlize -b sample/hello.md
+    htmlize -b --theme default sample/hello.md
 
 memo(and thunks)
 ----------------------------------------
