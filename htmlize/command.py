@@ -14,7 +14,7 @@ import re
 import os.path
 import argparse
 import logging
-from .compat import text_
+from .compat import text_, bytes_
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
@@ -81,7 +81,7 @@ def emit_theme(body, theme, encoding="UTF-8"):
             path = os.path.join(dirpath, "default.css")
         with open(path) as rf:
             css = text_(rf.read())
-        theme = """<style type="text/css">{}</style>""".format(css)
+        theme = u"""<style type="text/css">{}</style>""".format(css)
         return(template.format(encoding=encoding, body=body, theme=theme))
 
 
@@ -124,17 +124,17 @@ def main(sys_args=sys.argv):
     args = parser.parse_args(sys_args)
     if args.list:
         return list_theme()
-    
+
     if not args.browse:
         print(detect(args.file)(args.file, args.theme))
     else:
         import tempfile
         import webbrowser
 
-        _, tmpname = tempfile.mkstemp(suffix=".html")
-        with open(tmpname, "w") as wf:
-            wf.write(detect(args.file)(args.file, theme=args.theme))
-        webbrowser.open_new_tab("file://{}".format(tmpname))
+        _, tmpname = tempfile.mkstemp(suffix=u".html")
+        with open(tmpname, "wb") as wf:
+            wf.write(bytes_(detect(args.file)(args.file, theme=args.theme)))
+        webbrowser.open_new_tab(u"file://{}".format(tmpname))
 
 
 if "__main__" == __name__:
